@@ -10,15 +10,14 @@ Sponsored by: [freistil IT](http://freistil.it) for hosting at [DrupalCONCEPT](h
 a little module, that inserts some Javascript to correct missing node access counter updates
 when using a reverse proxy like Varnish.
 
-Just put the module in sites/all/modules, activate it and you should be done.
-
 It looks for anonymous sessions and does its work there. But it respects logged in users, where everything should go pass the cache and statistics should
 normally.
 
-## robots.txt
+## Usage
 
-Put the following line into your robots.txt to prevent accidental access:
-
+1. Just put the module in sites/all/modules, activate it and you should be done.
+2. Active the Block and put it into the footer. 
+3. Put the following line into your robots.txt to prevent accidental access:  
 `Disallow: /ajax/dc_pixelaccess_stats.php`
 
 ## Credits
