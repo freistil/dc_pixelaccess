@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * @file
+ * Pixel access counter
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function dc_pixelaccess_menu() {
+	$items['dc_pixelaccess_stats.php'] = array(
+		'page callback' => 'dc_pixelaccess_ajax_callback',
+		'type' => MENU_CALLBACK,
+		'access callback' => 1,
+		'access arguments' => array('access content'),
+		'file path' => drupal_get_path('module', 'dc_pixelaccess'),
+		'file' => 'dc_pixelaccess.ajax.inc'
+	)
+}
+
+/**
+ * Output text & set php in async mode.
+ *
+ * @param $output
+ *  string - Text to output to open connection.
+ * @param $wait
+ *  bool - Wait 1 second?
+ * @param $content_type
+ *  string - Content type header.
+ */
+function dc_pixelaccess_async_opp($output, $wait = TRUE, $content_type = "text/html; charset=utf-8", $length = 0) {
+  // Calculate Content Lenght
+  if ($length == 0) {
+    $output .= "\n";
+    $length = (mb_strlen($output, '8bit')-1);
+  }
+  // Prime php for background operations
+  $loop = 0;
+  while (ob_get_level() && $loop < 25) {
+    ob_end_clean();
+    $loop++;
+  }
+  header("Connection: close");
+  ignore_user_abort();
+
+  // Output headers & data
+  ob_start();
+  header("Content-type: " . $content_type);
+  header("Expires: Sun, 19 Nov 1978 05:00:00 GMT");
+  header("Cache-Control: no-cache");
+  header("Cache-Control: must-revalidate");
+  header("Content-Length: " . $length);
+  header("Connection: close");
+  print($output);
+  ob_end_flush();
+  flush();
+  // wait for 1 second
+  if ($wait) {
+    sleep(1);
+  }
+
+  // text returned and connection closed.
+  // Do background processing. Time taken after should not effect page load times.
+}

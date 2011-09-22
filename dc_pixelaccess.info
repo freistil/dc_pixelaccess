@@ -1,0 +1,4 @@
+name = DrupalCONCEPT pixel access counter
+description = provides an uncached pixel to count node accesses.
+package = DrupalCONCEPT
+core = 6.x
