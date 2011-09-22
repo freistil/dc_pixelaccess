@@ -9,15 +9,120 @@
  * Implementation of hook_menu().
  */
 function dc_pixelaccess_menu() {
-	$items['dc_pixelaccess_stats.php'] = array(
+	$items = array();
+	$items['ajax/dc_pixelaccess_stats.php'] = array(
 		'page callback' => 'dc_pixelaccess_ajax_callback',
 		'type' => MENU_CALLBACK,
 		'access callback' => 1,
 		'access arguments' => array('access content'),
 		'file path' => drupal_get_path('module', 'dc_pixelaccess'),
 		'file' => 'dc_pixelaccess.ajax.inc'
-	)
+	);
+	return $items;
 }
+
+/**
+ * Implementation of hook_block().
+ */
+function dc_pixelaccess_block($op = 'list', $delta = 0, $edit = array()) {
+	global $user;
+
+	switch ($op) {
+		case 'list':
+			$blocks['dc-pixelaccess-count'] = array(
+				'stats' => array(
+				'info'   => t('DrupalCONCEPT: AJAX core statistics'),
+				'region' => 'right',
+				'weight' => 10,
+				'cache'  => BLOCK_NO_CACHE,
+			),
+		);
+		return $blocks;
+	case 'view':
+		//dpm($_SERVER);
+		if (!( strpos($_SERVER['SCRIPT_FILENAME'], 'index.php') === FALSE
+			|| variable_get('site_offline', 0)
+			|| ($_SERVER['REQUEST_METHOD'] != 'GET' && $_SERVER['REQUEST_METHOD'] != 'HEAD')
+			|| $_SERVER['SERVER_SOFTWARE'] === 'PHP CLI'
+			|| isset($_GET['nocache'])
+			|| !empty($user->uid)
+			|| !module_exists('statistics')
+		)) {
+		$block = array();
+		$block['subject'] = t('DrupalCONCEPT Pixelaccess counter');
+		$block['content'] .= '<div id="dc_pixelaccess-stats"></div>' . dc_pixelaccess_stats_generate("ajax/dc_pixelaccess_stats.php");
+		}
+		else {
+			$block['content'] .= '<div id="dc_pixelaccess-stats"></div>';
+			drupal_add_js('$("#dc_pixelaccess-stats").parent().parent().hide();', 'inline', 'footer');
+		}
+		break;
+	}
+	return $block;
+}
+
+/**
+ * Generate js/html for DC pixelaccess stat counter.
+ *
+ * NOTE HTML code could be added to the $buffer directly. Would prevent 2x
+ * counts on first view. Would be hard to do though.
+ *
+ * @param $filename
+ *   Name of pixelaccess's statistics php file.
+ */
+function dc_pixelaccess_stats_generate($filename) {
+  global $base_path;
+
+  // is node & node count enabled.
+  if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == '' && variable_get('statistics_count_content_views', 0)) {
+    $nid = arg(1);;
+  }
+  else {
+    $nid = 'NULL';
+  }
+
+  // access log enabled.
+  if ((variable_get('statistics_enable_access_log', 0)) && (module_invoke('throttle', 'status') == 0)) {
+    $title = drupal_urlencode(strip_tags(drupal_get_title()));
+    $q = $_GET['q'];
+  }
+  else {
+    $title = 'NULL';
+    $q = 'NULL';
+  }
+
+  $page_js = array(
+    'dc_pixelaccess' => array(
+      'nid' => $nid,
+      'q' => $q,
+      'title' => $title,
+    ),
+  );
+  $site_js = <<<ETO
+$.getJSON(Drupal.settings.basePath + "$filename", {nocache: "1", js: "1", nid: Drupal.settings.dc_pixelaccess.nid, qq: Drupal.settings.dc_pixelaccess.q, title: Drupal.settings.dc_pixelaccess.title, referer: document.referrer}, function(response) {
+  $.each(response, function(id, contents) {
+    if (contents == 'NULL') {
+      $(id).parent().parent().hide();
+    }
+    else {
+      $(id).html(contents);
+    }
+  });
+});
+ETO;
+
+  // page specific variables
+  drupal_add_js($page_js, 'setting', 'header');
+  // site-wide code
+  drupal_add_js($site_js, 'inline', 'footer');
+  // no script code
+  $page_ns = '<noscript><div style="display:inline;"><img src="' . $base_path . $filename . '?nocache=1' . '&nid='. $nid . '&title='. $title . '&q='. $q . '" alt="" /></div></noscript>';
+
+  return $page_ns;
+}
+
+
+
 
 /**
  * Output text & set php in async mode.

@@ -5,7 +5,7 @@
  */
 function dc_pixelaccess_ajax_callback() {
   // Exit if nothing was passed to this.
-  if (   !isset($_GET['nid'])
+	if (   !isset($_GET['nid'])
       && !isset($_GET['title'])
       && !isset($_GET['qq'])
       && !isset($_GET['referer'])
@@ -23,7 +23,7 @@ function dc_pixelaccess_ajax_callback() {
   $title = (isset($_GET['title']) && $_GET['title'] != 'NULL') ? urldecode($_GET['title']) : NULL;
   $q = (isset($_GET['qq']) && $_GET['qq'] != 'NULL') ? $_GET['qq'] : NULL;
   $referer = isset($_GET['referer']) ? $_GET['referer'] : NULL;
-
+	
   // $session_id only goes in the access log; only used for stats, not creds.
   $session_id = session_id();
   if (empty($session_id)) {
@@ -53,23 +53,23 @@ function dc_pixelaccess_ajax_callback() {
     dc_pixelaccess_add_access_log($title, $q, $referer, $session_id, $uid);
   }
 
-  // Return Data
-  if (isset($_GET['js'])) {
-    if ($_GET['js'] == 1) {
-      $json = array();
-      // Get stats block html.
-      $json = array_merge($json, dc_pixelaccess_output_stats_block());
-
-      // Send JSON Back
-      if (!empty($json)) {
-        drupal_json($json);
-      }
-    }
-    // Send HTML back
-    elseif ($_GET['js'] == 2) {
-      echo array_pop(dc_pixelaccess_output_stats_block());
-    }
-  }
+	// Return Data
+	if (isset($_GET['js'])) {
+		if ($_GET['js'] == 1) {
+			$json = array("success" => "1");
+			// Get stats block html.
+			$json = array_merge($json);
+			
+			// Send JSON Back
+			if (!empty($json)) {
+				drupal_json($json);
+			}
+		}
+		// Send HTML back
+		elseif ($_GET['js'] == 2) {
+			echo "success";
+		}
+	}
 }
 
 /**
@@ -106,17 +106,3 @@ function dc_pixelaccess_add_access_log($title, $q, $referer, $session_id, $uid) 
   db_query("INSERT INTO {accesslog} (title, path, url, hostname, uid, sid, timer, timestamp) values('%s', '%s', '%s', '%s', %d, '%s', %d, %d)", $title, $q, $referer, ip_address(), $uid, $session_id, timer_read('page'), time());
 }
 
-/**
- * Return array with stats block html.
- */
-function dc_pixelaccess_output_stats_block() {
-  if (variable_get('dc_pixelaccess_block_show_stats', FALSE)) {
-      $block = module_invoke('statistics', 'block', 'view', 0);
-      $block = $block['content'];
-  }
-  else {
-    $block = 'NULL';
-  }
-
-  return array('#dc_pixelaccess-stats' => $block);
-}
