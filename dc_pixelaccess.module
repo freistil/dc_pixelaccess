@@ -160,9 +160,9 @@ function dc_pixelaccess_async_opp($output, $wait = TRUE, $content_type = "text/h
   print($output);
   ob_end_flush();
   flush();
-  // wait for 1 second
+  // wait for 5 milliseconds
   if ($wait) {
-    sleep(1);
+    usleep(5000);
   }
 
   // text returned and connection closed.
