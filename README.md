@@ -16,7 +16,7 @@ normally.
 ## Usage
 
 1. Just put the module in sites/all/modules, activate it and you should be done.
-2. Active the Block and put it into the footer. 
+2. Activate the Block and put it into the footer. 
 3. Put the following line into your robots.txt to prevent accidental access:  
 `Disallow: /ajax/dc_pixelaccess_stats.php`
 
