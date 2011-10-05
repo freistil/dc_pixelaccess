@@ -30,36 +30,34 @@ function dc_pixelaccess_block($op = 'list', $delta = 0, $edit = array()) {
 	switch ($op) {
 		case 'list':
 			$blocks['dc-pixelaccess-count'] = array(
-				'stats' => array(
 				'info'   => t('DrupalCONCEPT: AJAX core statistics'),
-				'region' => 'right',
 				'weight' => 10,
 				'cache'  => BLOCK_NO_CACHE,
-				),
 			);
-		return $blocks;
-	case 'view':
-		//dpm($_SERVER);
-		if (!( strpos($_SERVER['SCRIPT_FILENAME'], 'index.php') === FALSE
-			|| variable_get('site_offline', 0)
-			|| ($_SERVER['REQUEST_METHOD'] != 'GET' && $_SERVER['REQUEST_METHOD'] != 'HEAD')
-			|| $_SERVER['SERVER_SOFTWARE'] === 'PHP CLI'
-			|| isset($_GET['nocache'])
-			|| !empty($user->uid)
-			|| !module_exists('statistics')
-		)) {
-		$block = array();
-		$block['subject'] = t('DrupalCONCEPT Pixelaccess counter');
-		$block['content'] .= '<div id="dc_pixelaccess-stats"></div>' . dc_pixelaccess_stats_generate("ajax/dc_pixelaccess_stats.php");
-		}
-		else {
-			$block['content'] .= '<div id="dc_pixelaccess-stats"></div>';
-			drupal_add_js('$("#dc_pixelaccess-stats").parent().parent().hide();', 'inline', 'footer');
-		}
-		break;
+			return $blocks;
+		case 'view':
+			//dpm($_SERVER);
+			if (!( strpos($_SERVER['SCRIPT_FILENAME'], 'index.php') === FALSE
+				|| variable_get('site_offline', 0)
+				|| ($_SERVER['REQUEST_METHOD'] != 'GET' && $_SERVER['REQUEST_METHOD'] != 'HEAD')
+				|| $_SERVER['SERVER_SOFTWARE'] === 'PHP CLI'
+				|| isset($_GET['nocache'])
+				|| !empty($user->uid)
+				|| !module_exists('statistics')
+			)) {
+				$block = array();
+				$block['subject'] = t('DrupalCONCEPT Pixelaccess counter');
+				$block['content'] .= '<div id="dc_pixelaccess-stats"></div>' . dc_pixelaccess_stats_generate("ajax/dc_pixelaccess_stats.php");
+			}
+			else {
+				$block['content'] .= '<div id="dc_pixelaccess-stats"></div>';
+				drupal_add_js('$("#dc_pixelaccess-stats").parent().parent().hide();', 'inline', 'footer');
+			}
+			break;
 	}
 	return $block;
 }
+
 
 /**
  * Generate js/html for DC pixelaccess stat counter.
