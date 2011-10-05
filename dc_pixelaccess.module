@@ -35,8 +35,8 @@ function dc_pixelaccess_block($op = 'list', $delta = 0, $edit = array()) {
 				'region' => 'right',
 				'weight' => 10,
 				'cache'  => BLOCK_NO_CACHE,
-			),
-		);
+				),
+			);
 		return $blocks;
 	case 'view':
 		//dpm($_SERVER);
