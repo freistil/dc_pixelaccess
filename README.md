@@ -23,4 +23,4 @@ normally.
 ## Credits
 
 This module is based heavily on the [boost module](http://drupal.org/project/boost), 
-espacially its boost_status.php script.
+especially its boost_status.php script.
